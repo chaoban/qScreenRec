@@ -61,6 +61,11 @@ if ($crt) {
 # FFmpeg（先執行 scripts\fetch_ffmpeg.ps1，或自行放 third_party\ffmpeg\ffmpeg.exe）
 $ff = Join-Path $Root "third_party\ffmpeg\ffmpeg.exe"
 if (Test-Path $ff) {
+    # 授權檢查：拒絕打包 GPL / nonfree 版 FFmpeg（閉源商業軟體只能附 LGPL 版）
+    $cfg = (& $ff -hide_banner -version) -join " "
+    if ($cfg -match '--enable-gpl' -or $cfg -match '--enable-nonfree') {
+        throw "third_party\ffmpeg\ffmpeg.exe 是 GPL 或 nonfree 版本，不能隨本軟體散布。請改用 LGPL 版（scripts\fetch_ffmpeg.ps1）"
+    }
     New-Item -ItemType Directory -Force "$Dist\ffmpeg" | Out-Null
     Copy-Item $ff "$Dist\ffmpeg\"
     Get-ChildItem (Split-Path $ff) -Filter "LICENSE*" | Copy-Item -Destination "$Dist\ffmpeg\"

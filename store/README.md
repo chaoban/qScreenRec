@@ -5,6 +5,7 @@
 | 檔案 | 用途 | 對應 Partner Center 位置 |
 |---|---|---|
 | [submission_checklist.md](submission_checklist.md) | 上架步驟總覽與檢查清單 | 全流程 |
+| [compliance_risk_assessment.md](compliance_risk_assessment.md) | 授權、專利、Store 政策、穩定性與路徑的風險評估 | 送審前自我檢查 |
 | [listing_zh-TW.md](listing_zh-TW.md) | 繁體中文商店頁內容 | 商店清單 → 中文（台灣） |
 | [listing_en-US.md](listing_en-US.md) | 英文商店頁內容 | 商店清單 → English (United States) |
 | [privacy_policy_zh-TW.md](privacy_policy_zh-TW.md) / [privacy_policy_en-US.md](privacy_policy_en-US.md) | 隱私權政策（需公開網址） | 屬性 → 隱私權原則 URL |

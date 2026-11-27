@@ -4,11 +4,14 @@
 #include "core/recorder.h"
 #include "core/settings.h"
 
+#include <QIcon>
 #include <QObject>
 #include <QPointer>
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QTranslator>
+#include <atomic>
+#include <thread>
 
 class QAction;
 class QMenu;
@@ -46,7 +49,8 @@ private:
     void startCountdown();
     void startRecording();
     void onRecorderState(Recorder::State state);
-    void onRecordingFinished(const QString &file, bool ok, bool limitReached, const QString &error);
+    void onRecordingFinished(const QString &file, bool ok, Recorder::StopReason reason, const QString &error);
+    void stopProbe();
     void updateTray();
     QString hotkeyText() const;
     QString pickEncoder() const;
@@ -71,12 +75,16 @@ private:
     QString m_ffmpegVersion;
     QList<EncoderInfo> m_encoders;
     bool m_probing = false;
+    std::thread m_probeThread;
+    std::atomic_bool m_probeCancel { false };
     int m_probeGeneration = 0;
 
     QPointer<SettingsDialog> m_settingsDlg;
     QPointer<HelpDialog> m_helpDlg;
     QPointer<QWidget> m_aboutDlg;
 
+    QIcon m_iconApp;
+    QIcon m_iconRec;
     QTimer m_tick;
     bool m_blink = false;
     QPointer<QLabel> m_countdownLabel;

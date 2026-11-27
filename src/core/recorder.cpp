@@ -15,8 +15,12 @@
 #include <QPainter>
 #include <QRegularExpression>
 #include <QStandardPaths>
+#include <QStorageInfo>
+#include <QProcess>
+#include "capture/dxgicapturer.h"
 #include <cstring>
 #include <windows.h>
+#include <timeapi.h>
 
 namespace {
 
@@ -198,15 +202,31 @@ public:
     const void *bits() const { return m_bits; }
     size_t byteCount() const { return static_cast<size_t>(m_image.width()) * m_image.height() * 4; }
 
-    void copyFrom(const QImage &src)
+    // 擷取到新畫面時更新桌面緩衝（畫面沒變就沿用上一張）
+    void updateDesktop(const QImage &src)
     {
-        if (src.size() == m_image.size() && src.bytesPerLine() == m_image.bytesPerLine()) {
-            std::memcpy(m_bits, src.constBits(), byteCount());
-        } else {
-            QPainter p(&m_image);
+        if (m_desktop.size() != m_image.size())
+            m_desktop = QImage(m_image.size(), QImage::Format_RGB32);
+        if (src.size() == m_desktop.size() && src.bytesPerLine() == m_desktop.bytesPerLine()) {
+            std::memcpy(m_desktop.bits(), src.constBits(), byteCount());
+        } else if (!src.isNull()) {
+            // 錄影中途解析度改變：縮放到原本的輸出大小，避免 ffmpeg 收到大小不符的畫面
+            QPainter p(&m_desktop);
             p.setRenderHint(QPainter::SmoothPixmapTransform);
-            p.drawImage(m_image.rect(), src);
+            p.fillRect(m_desktop.rect(), Qt::black);
+            const QSize fit = src.size().scaled(m_desktop.size(), Qt::KeepAspectRatio);
+            p.drawImage(QRect(QPoint((m_desktop.width() - fit.width()) / 2, (m_desktop.height() - fit.height()) / 2), fit), src);
         }
+    }
+
+    // 把桌面緩衝複製到輸出畫布，之後再疊加游標與浮水印
+    void beginFrame()
+    {
+        if (m_desktop.isNull()) {
+            std::memset(m_bits, 0, byteCount());
+            return;
+        }
+        std::memcpy(m_bits, m_desktop.constBits(), byteCount());
     }
 
     // 回傳游標在畫布上的位置（指尖），不在畫面內回傳 false
@@ -247,6 +267,7 @@ private:
     HGDIOBJ m_old = nullptr;
     void *m_bits = nullptr;
     QImage m_image;
+    QImage m_desktop;
     QHash<HCURSOR, QPoint> m_hotspots;
 };
 
@@ -292,31 +313,98 @@ void Recorder::setState(State s)
     emit stateChanged(s);
 }
 
+namespace {
+// 檔名重複時加上 _2、_3…
+QString uniqueFile(const QDir &dir, const QString &base, const QString &ext)
+{
+    QString name = QStringLiteral("%1.%2").arg(base, ext);
+    for (int i = 2; QFileInfo::exists(dir.filePath(name)) && i < 1000; ++i)
+        name = QStringLiteral("%1_%2.%3").arg(base).arg(i).arg(ext);
+    return QDir::toNativeSeparators(dir.filePath(name));
+}
+
+bool ensureWritableDir(const QString &path)
+{
+    if (path.isEmpty())
+        return false;
+    QDir dir(path);
+    if (!dir.exists() && !dir.mkpath(QStringLiteral(".")))
+        return false;
+    // 實際寫入測試（唯讀磁碟、權限不足、拔除的隨身碟）
+    QFile probe(dir.filePath(QStringLiteral(".qscreenrec_write_test")));
+    if (!probe.open(QIODevice::WriteOnly))
+        return false;
+    probe.close();
+    probe.remove();
+    return true;
+}
+
+constexpr qint64 kMinFreeBytesToStart = 300LL * 1024 * 1024;  // 開始錄影至少需 300 MB
+constexpr qint64 kMinFreeBytesWhileRec = 150LL * 1024 * 1024; // 低於 150 MB 自動停止並存檔
+
+// 執行 ffmpeg 並等待結束（GIF 轉檔用）
+bool runFfmpeg(const QString &exe, const QStringList &args, QString *error)
+{
+    QProcess p;
+    p.setProcessChannelMode(QProcess::MergedChannels);
+    p.start(exe, args);
+    if (!p.waitForStarted(10000)) {
+        if (error) *error = p.errorString();
+        return false;
+    }
+    if (!p.waitForFinished(30 * 60 * 1000)) {
+        p.kill();
+        p.waitForFinished(3000);
+        if (error) *error = QStringLiteral("timeout");
+        return false;
+    }
+    if (p.exitStatus() != QProcess::NormalExit || p.exitCode() != 0) {
+        if (error) *error = QString::fromLocal8Bit(p.readAll().right(600)).trimmed();
+        return false;
+    }
+    return true;
+}
+} // namespace
+
 bool Recorder::start(const AppSettings &settings, const QString &ffmpegPath, const QString &encoderId, QString *error)
 {
     if (m_state != State::Idle)
         return false;
     if (m_thread.joinable())
         m_thread.join();
-    if (ffmpegPath.isEmpty()) {
+    if (ffmpegPath.isEmpty() || !QFileInfo(ffmpegPath).isFile()) {
         if (error) *error = tr("FFmpeg was not found. Please set its location in Settings.");
         return false;
     }
-    QDir dir(settings.outputDir);
-    if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) {
-        if (error) *error = tr("Cannot create the output folder:\n%1").arg(settings.outputDir);
+
+    // 儲存資料夾：設定的資料夾不能用時（例如另一台電腦沒有 D 槽），改用「影片\qScreenRec」
+    QString outDir = settings.outputDir;
+    m_usedFallback = false;
+    if (!ensureWritableDir(outDir)) {
+        outDir = AppSettings::defaultOutputDir();
+        m_usedFallback = true;
+        if (!ensureWritableDir(outDir)) {
+            if (error) *error = tr("Cannot create the output folder:\n%1").arg(QDir::toNativeSeparators(settings.outputDir));
+            return false;
+        }
+    }
+
+    QStorageInfo storage(outDir);
+    if (storage.isValid() && storage.bytesAvailable() >= 0 && storage.bytesAvailable() < kMinFreeBytesToStart) {
+        if (error) *error = tr("Not enough free disk space in:\n%1\n\nAt least 300 MB is required.").arg(QDir::toNativeSeparators(outDir));
         return false;
     }
 
-    const QString name = QStringLiteral("qScreenRec_%1.%2")
-                             .arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss")),
-                                  settings.fileExtension());
-    m_file = QDir::toNativeSeparators(dir.filePath(name));
+    const QDir dir(outDir);
+    const QString base = QStringLiteral("qScreenRec_%1").arg(QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss")));
+    m_file = uniqueFile(dir, base, settings.fileExtension());
     m_stop = false;
     m_elapsedMs = 0;
     m_backend = 0;
     setState(State::Recording);
-    m_thread = std::thread(&Recorder::run, this, Job{ settings, ffmpegPath, encoderId, m_file });
+    AppSettings job = settings;
+    job.outputDir = outDir;
+    m_thread = std::thread(&Recorder::run, this, Job{ job, QDir::toNativeSeparators(ffmpegPath), encoderId, m_file });
     return true;
 }
 
@@ -331,15 +419,15 @@ void Recorder::stop()
 void Recorder::run(Job job)
 {
     const AppSettings &s = job.settings;
-    bool limitReached = false;
+    StopReason reason = StopReason::User;
     QString error;
 
     auto finish = [&](bool ok) {
-        QMetaObject::invokeMethod(this, [this, file = job.file, ok, limitReached, error]() {
+        QMetaObject::invokeMethod(this, [this, file = job.file, ok, reason, error]() {
             if (m_thread.joinable())
                 m_thread.join();
             setState(State::Idle);
-            emit finished(file, ok, limitReached, error);
+            emit finished(file, ok, reason, error);
         }, Qt::QueuedConnection);
     };
 
@@ -357,8 +445,15 @@ void Recorder::run(Job job)
         finish(false);
         return;
     }
-    m_backend = cap->backendName() == QLatin1String("DXGI") ? 1 : 2;
-    cap->acquire(250); // 取得第一張完整畫面
+    const bool startedWithDxgi = cap->backendName() == QLatin1String("DXGI");
+    m_backend = startedWithDxgi ? 1 : 2;
+
+    // 取得第一張完整畫面（最多等 0.5 秒）
+    QElapsedTimer firstFrame;
+    firstFrame.start();
+    Capturer::Status st = cap->acquire(100);
+    while (st != Capturer::Status::NewFrame && firstFrame.elapsed() < 500 && !m_stop)
+        st = cap->acquire(100);
 
     const QSize frameSize = cap->image().size();
     Canvas canvas;
@@ -367,62 +462,100 @@ void Recorder::run(Job job)
         finish(false);
         return;
     }
+    canvas.updateDesktop(cap->image());
 
     Watermark watermark;
     if (s.watermarkEnabled)
         watermark.configure(s.watermarkText, s.watermarkPos, s.watermarkOpacity, frameSize);
 
-    // 2. 啟動 ffmpeg
-    const int fps = s.format == VideoFormat::Gif ? qMin(s.fps, 15) : s.fps;
+    // 2. 啟動 ffmpeg。GIF 先錄成高畫質 MKV 暫存檔，停止後再轉 GIF，避免長時間錄影把記憶體吃光
+    const bool gif = s.format == VideoFormat::Gif;
+    const int fps = gif ? qMin(s.fps, 15) : s.fps;
+    AppSettings enc = s;
+    QString encodeTarget = job.file;
+    if (gif) {
+        enc.format = VideoFormat::Mkv;
+        enc.quality = Quality::High;
+        encodeTarget = job.file + QStringLiteral(".part.mkv");
+    }
     PipeProcess ff;
-    if (!ff.start(job.ffmpegPath, FFmpeg::buildArgs(s, job.encoderId, frameSize, fps, job.file), &error)) {
+    if (!ff.start(job.ffmpegPath, FFmpeg::buildArgs(enc, job.encoderId, frameSize, fps, encodeTarget), &error)) {
         finish(false);
         return;
     }
 
-    // 3. 主迴圈：固定影格率輸出；畫面沒變時重複上一格，確保影片長度與實際時間一致
+    // 3. 主迴圈：依影格率定時取「最新」畫面。畫面沒變時重複上一張，確保影片長度與實際時間一致。
+    //    在兩格之間睡眠，而不是每次桌面一更新就複製，避免高更新率螢幕（120/144 Hz）浪費 CPU/GPU。
+    timeBeginPeriod(1);
     const double interval = 1000.0 / fps;
     const qint64 limitMs = s.durationLimitMin > 0 ? qint64(s.durationLimitMin) * 60 * 1000 : 0;
     qint64 written = 0;
-    int failures = 0;
+    qint64 lastReopen = -1000000;
+    qint64 lastDxgiRetry = 0;
+    qint64 lastDiskCheck = 0;
+    int reopenFailures = 0;
     bool writeFailed = false;
+    QStorageInfo storage(QFileInfo(encodeTarget).absolutePath());
     QElapsedTimer timer;
     timer.start();
 
     while (!m_stop) {
         qint64 now = timer.elapsed();
         if (limitMs > 0 && now >= limitMs) {
-            limitReached = true;
+            reason = StopReason::TimeLimit;
             break;
         }
         const double nextDue = written * interval;
-        const int waitMs = qMax(0, static_cast<int>(nextDue - now));
-
-        const Capturer::Status st = cap->acquire(qMin(waitMs, 100));
-        if (st == Capturer::Status::Lost || st == Capturer::Status::Failed) {
-            if (st == Capturer::Status::Failed)
-                ++failures;
-            QString reopenErr;
-            if (st == Capturer::Status::Failed && failures > 30) {
-                // DXGI 持續失敗 → 改用 GDI
-                auto gdi = std::make_unique<GdiCapturer>();
-                if (gdi->open(monitor, &reopenErr)) {
-                    cap = std::move(gdi);
-                    m_backend = 2;
-                }
-                failures = 0;
-            } else if (st == Capturer::Status::Lost && !cap->open(monitor, &reopenErr)) {
-                Sleep(50); // 例如 UAC 安全桌面期間，稍後再試；期間持續輸出上一格
-            }
-        } else {
-            failures = 0;
+        if (now < nextDue) {
+            Sleep(static_cast<DWORD>(qBound<double>(1.0, nextDue - now, 50.0)));
+            continue;
         }
 
-        now = timer.elapsed();
-        if (now < nextDue)
-            continue;
+        // 每 5 秒檢查一次磁碟空間
+        if (now - lastDiskCheck >= 5000) {
+            lastDiskCheck = now;
+            storage.refresh();
+            if (storage.isValid() && storage.bytesAvailable() >= 0 && storage.bytesAvailable() < kMinFreeBytesWhileRec) {
+                reason = StopReason::DiskFull;
+                break;
+            }
+        }
 
-        canvas.copyFrom(cap->image());
+        st = cap->acquire(0);
+        if (st == Capturer::Status::NewFrame) {
+            canvas.updateDesktop(cap->image());
+            reopenFailures = 0;
+        } else if (st == Capturer::Status::Lost || st == Capturer::Status::Failed) {
+            // 解析度變更、鎖定畫面、UAC 等：每 0.5 秒重試一次；期間持續輸出上一張畫面
+            if (now - lastReopen >= 500) {
+                lastReopen = now;
+                QString e;
+                if (cap->open(monitor, &e)) {
+                    reopenFailures = 0;
+                    if (cap->acquire(50) == Capturer::Status::NewFrame)
+                        canvas.updateDesktop(cap->image());
+                } else if (++reopenFailures >= 10 && m_backend == 1) {
+                    auto gdi = std::make_unique<GdiCapturer>();
+                    if (gdi->open(monitor, &e)) {
+                        cap = std::move(gdi);
+                        m_backend = 2;
+                        reopenFailures = 0;
+                        lastDxgiRetry = now;
+                    }
+                }
+            }
+        } else if (m_backend == 2 && startedWithDxgi && now - lastDxgiRetry >= 5000) {
+            // 暫時改用 GDI 後，每 5 秒嘗試切回效能較好的 DXGI
+            lastDxgiRetry = now;
+            auto dxgi = std::make_unique<DxgiCapturer>();
+            QString e;
+            if (dxgi->open(monitor, &e)) {
+                cap = std::move(dxgi);
+                m_backend = 1;
+            }
+        }
+
+        canvas.beginFrame();
         QPoint tip;
         HCURSOR cursor = nullptr;
         const bool hasCursor = s.drawCursor && canvas.cursorInfo(monitor.rect, &tip, &cursor);
@@ -435,8 +568,9 @@ void Recorder::run(Job job)
         if (hasCursor)
             canvas.drawCursor(cursor, tip);
 
+        now = timer.elapsed();
         const qint64 due = static_cast<qint64>(now / interval) + 1;
-        qint64 count = due - written;
+        qint64 count = qMax<qint64>(1, due - written);
         if (count > fps) { // 落後超過 1 秒（系統過載），放棄補格避免越拖越慢
             written = due - 1;
             count = 1;
@@ -452,17 +586,38 @@ void Recorder::run(Job job)
         written += count;
         m_elapsedMs = now;
     }
+    timeEndPeriod(1);
 
     // 4. 收尾
     cap.reset();
     const int code = ff.finish(10 * 60 * 1000);
-    const QFileInfo fi(job.file);
-    const bool ok = code == 0 && !writeFailed && fi.exists() && fi.size() > 0;
+    QFileInfo fi(encodeTarget);
+    bool ok = code == 0 && !writeFailed && fi.exists() && fi.size() > 0;
     if (!ok) {
         error = tr("FFmpeg reported an error (exit code %1).").arg(code);
         const QString tail = ff.logTail();
         if (!tail.isEmpty())
             error += QStringLiteral("\n\n") + tail;
+        if (reason == StopReason::DiskFull)
+            error = tr("The disk is full.") + QStringLiteral("\n\n") + error;
+    }
+
+    if (ok && gif) {
+        const QString palette = job.file + QStringLiteral(".palette.png");
+        QString e;
+        ok = runFfmpeg(job.ffmpegPath, FFmpeg::gifPaletteArgs(encodeTarget, fps, palette), &e)
+             && runFfmpeg(job.ffmpegPath, FFmpeg::gifEncodeArgs(encodeTarget, palette, fps, job.file), &e);
+        QFile::remove(palette);
+        if (ok) {
+            QFile::remove(encodeTarget);
+        } else {
+            // 轉 GIF 失敗時保留 MKV，至少影片不會遺失
+            const QString keep = job.file.left(job.file.size() - 4) + QStringLiteral(".mkv");
+            QFile::rename(encodeTarget, keep);
+            error = tr("Converting to GIF failed. The recording was kept as:\n%1").arg(keep);
+            if (!e.isEmpty())
+                error += QStringLiteral("\n\n") + e;
+        }
     }
     finish(ok);
 }

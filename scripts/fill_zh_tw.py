@@ -2,6 +2,11 @@
 import html, os, re, sys
 
 T = {
+'Not enough free disk space in:\n%1\n\nAt least 300 MB is required.': 'ç£\x81ç¢\x9fç©ºé\x96\x93ä¸\x8dè¶³ï¼\x9a\n%1\n\nè\x87³å°\x91é\x9c\x80è¦\x81 300 MBã\x80\x82',
+'The disk is full.': 'ç£\x81ç¢\x9få·²æ»¿ã\x80\x82',
+'Converting to GIF failed. The recording was kept as:\n%1': 'è½\x89æ\x8f\x9b GIF å¤±æ\x95\x97ï¼\x8cé\x8c\x84å½±å·²ä¿\x9dç\x95\x99ç\x82ºï¼\x9a\n%1',
+'Recording stopped because the disk is almost full.': 'ç£\x81ç¢\x9fç©ºé\x96\x93å¿«ç\x94¨å®\x8cï¼\x8cå·²è\x87ªå\x8b\x95å\x81\x9cæ\xad¢é\x8c\x84å½±ã\x80\x82',
+'The chosen folder was unavailable, so it was saved to:\n%1': 'å\x8e\x9fæ\x9c¬è¨\xadå®\x9aç\x9a\x84è³\x87æ\x96\x99å¤¾ç\x84¡æ³\x95ä½¿ç\x94¨ï¼\x8cå·²æ\x94¹å\xad\x98å\x88°ï¼\x9a\n%1',
 'About %1': '關於 %1',
 'Version %1': '版本 %1',
 'Simple screen recorder': '簡易螢幕錄影工具',
@@ -10,7 +15,7 @@ T = {
 '(not found)': '（未找到）',
 'This software is built with Qt %1; Qt is used under the GNU LGPL v3.': '本軟體使用 Qt %1 開發，Qt 依 GNU LGPL v3 授權使用。',
 'Qt source code: ': 'Qt 原始碼：',
-'Video encoding uses FFmpeg %1 under the GNU LGPL v3.': '影片處理使用 FFmpeg %1，依 GNU LGPL 授權使用。',
+'Video encoding uses FFmpeg %1 under the GNU LGPL v3.': '影片處理使用 FFmpeg %1，依 GNU LGPL v3 授權使用。',
 'FFmpeg source code: ': 'FFmpeg 原始碼：',
 'See "Licenses" for other third-party components and full license texts.': '其他第三方元件與授權全文請見「授權資訊」。',
 'Licenses…': '授權資訊…',

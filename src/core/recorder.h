@@ -14,6 +14,8 @@ class Recorder : public QObject
 public:
     enum class State { Idle, Recording, Finishing };
     Q_ENUM(State)
+    enum class StopReason { User, TimeLimit, DiskFull };
+    Q_ENUM(StopReason)
 
     explicit Recorder(QObject *parent = nullptr);
     ~Recorder() override;
@@ -22,14 +24,16 @@ public:
     void stop();
 
     State state() const { return m_state; }
+    // 開始錄影時若原本的儲存資料夾無法使用，會改存到預設資料夾；此時回傳 true
+    bool usedFallbackFolder() const { return m_usedFallback; }
     qint64 elapsedMs() const { return m_elapsedMs.load(); }
     QString currentFile() const { return m_file; }
     QString backendName() const;
 
 signals:
     void stateChanged(Recorder::State state);
-    // limitReached：因達到設定的錄影時間而自動停止
-    void finished(const QString &file, bool ok, bool limitReached, const QString &error);
+    // reason：使用者停止、達到錄影時間、磁碟空間不足
+    void finished(const QString &file, bool ok, Recorder::StopReason reason, const QString &error);
 
 private:
     struct Job
@@ -44,6 +48,7 @@ private:
 
     State m_state = State::Idle;
     QString m_file;
+    bool m_usedFallback = false;
     std::thread m_thread;
     std::atomic_bool m_stop { false };
     std::atomic<qint64> m_elapsedMs { 0 };

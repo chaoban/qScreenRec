@@ -46,7 +46,7 @@
     <message>
         <location filename="../src/ui/aboutdialog.cpp" line="76"/>
         <source>Video encoding uses FFmpeg %1 under the GNU LGPL v3.</source>
-        <translation>影片處理使用 FFmpeg %1，依 GNU LGPL 授權使用。</translation>
+        <translation>影片處理使用 FFmpeg %1，依 GNU LGPL v3 授權使用。</translation>
     </message>
     <message>
         <location filename="../src/ui/aboutdialog.cpp" line="77"/>
@@ -83,42 +83,42 @@
 <context>
     <name>App</name>
     <message>
-        <location filename="../src/app.cpp" line="94"/>
+        <location filename="../src/app.cpp" line="103"/>
         <source>%1 is running in the system tray. Press %2 to start or stop recording.</source>
         <translation>%1 已在系統匣待命。按 %2 開始或停止錄影。</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="133"/>
+        <location filename="../src/app.cpp" line="152"/>
         <source>Open recordings folder</source>
         <translation>開啟錄影資料夾</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="134"/>
+        <location filename="../src/app.cpp" line="153"/>
         <source>Settings…</source>
         <translation>設定…</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="135"/>
+        <location filename="../src/app.cpp" line="154"/>
         <source>Help</source>
         <translation>使用說明</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="136"/>
+        <location filename="../src/app.cpp" line="155"/>
         <source>About %1</source>
         <translation>關於 %1</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="137"/>
+        <location filename="../src/app.cpp" line="156"/>
         <source>Exit</source>
         <translation>結束</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="145"/>
+        <location filename="../src/app.cpp" line="164"/>
         <source>The hotkey %1 is already used by another program. Please choose another one in Settings.</source>
         <translation>快捷鍵 %1 已被其他程式使用，請到「設定」更換。</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="220"/>
+        <location filename="../src/app.cpp" line="242"/>
         <source>FFmpeg was not found.
 
 Place ffmpeg.exe next to qScreenRec.exe, or set its location in Settings → General.</source>
@@ -127,12 +127,12 @@ Place ffmpeg.exe next to qScreenRec.exe, or set its location in Settings → Gen
 請將 ffmpeg.exe 放在 qScreenRec.exe 旁邊，或到「設定 → 一般」指定位置。</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="226"/>
+        <location filename="../src/app.cpp" line="248"/>
         <source>Detecting video encoders, please try again in a moment.</source>
         <translation>正在偵測影片編碼器，請稍後再試。</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="273"/>
+        <location filename="../src/app.cpp" line="295"/>
         <source>Could not start recording.
 
 %1</source>
@@ -141,22 +141,34 @@ Place ffmpeg.exe next to qScreenRec.exe, or set its location in Settings → Gen
 %1</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="292"/>
+        <location filename="../src/app.cpp" line="314"/>
         <source>Saved: %1</source>
         <translation>已儲存：%1</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="294"/>
+        <location filename="../src/app.cpp" line="316"/>
         <source>Recording time limit reached.</source>
         <translation>已達設定的錄影時間。</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="295"/>
+        <location filename="../src/app.cpp" line="318"/>
+        <source>Recording stopped because the disk is almost full.</source>
+        <translation>ç£ç¢ç©ºéå¿«ç¨å®ï¼å·²èªååæ­¢éå½±ã</translation>
+    </message>
+    <message>
+        <location filename="../src/app.cpp" line="320"/>
+        <source>The chosen folder was unavailable, so it was saved to:
+%1</source>
+        <translation>åæ¬è¨­å®çè³æå¤¾ç¡æ³ä½¿ç¨ï¼å·²æ¹å­å°ï¼
+%1</translation>
+    </message>
+    <message>
+        <location filename="../src/app.cpp" line="322"/>
         <source>Click to show it in the folder.</source>
         <translation>點這裡在資料夾中顯示。</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="299"/>
+        <location filename="../src/app.cpp" line="326"/>
         <source>Recording failed.
 
 %1</source>
@@ -165,43 +177,43 @@ Place ffmpeg.exe next to qScreenRec.exe, or set its location in Settings → Gen
 %1</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="316"/>
+        <location filename="../src/app.cpp" line="343"/>
         <source>Recording %1</source>
         <translation>錄影中 %1</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="318"/>
+        <location filename="../src/app.cpp" line="345"/>
         <source> / limit %1 min</source>
         <translation>／上限 %1 分鐘</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="321"/>
+        <location filename="../src/app.cpp" line="348"/>
         <source>Stop recording</source>
         <translation>停止錄影</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="323"/>
-        <location filename="../src/app.cpp" line="325"/>
+        <location filename="../src/app.cpp" line="350"/>
+        <location filename="../src/app.cpp" line="352"/>
         <source>Saving…</source>
         <translation>存檔中…</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="327"/>
+        <location filename="../src/app.cpp" line="354"/>
         <source>Starting in %1…</source>
         <translation>%1 秒後開始…</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="328"/>
+        <location filename="../src/app.cpp" line="355"/>
         <source>Cancel countdown</source>
         <translation>取消倒數</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="330"/>
+        <location filename="../src/app.cpp" line="357"/>
         <source>Ready</source>
         <translation>待命中</translation>
     </message>
     <message>
-        <location filename="../src/app.cpp" line="332"/>
+        <location filename="../src/app.cpp" line="359"/>
         <source>Start recording</source>
         <translation>開始錄影</translation>
     </message>
@@ -251,36 +263,59 @@ Place ffmpeg.exe next to qScreenRec.exe, or set its location in Settings → Gen
 <context>
     <name>Recorder</name>
     <message>
-        <location filename="../src/core/recorder.cpp" line="302"/>
+        <location filename="../src/core/recorder.cpp" line="376"/>
         <source>FFmpeg was not found. Please set its location in Settings.</source>
         <translation>找不到 FFmpeg，請到「設定」指定位置。</translation>
     </message>
     <message>
-        <location filename="../src/core/recorder.cpp" line="307"/>
+        <location filename="../src/core/recorder.cpp" line="387"/>
         <source>Cannot create the output folder:
 %1</source>
         <translation>無法建立儲存資料夾：
 %1</translation>
     </message>
     <message>
-        <location filename="../src/core/recorder.cpp" line="349"/>
+        <location filename="../src/core/recorder.cpp" line="394"/>
+        <source>Not enough free disk space in:
+%1
+
+At least 300 MB is required.</source>
+        <translation>ç£ç¢ç©ºéä¸è¶³ï¼
+%1
+
+è³å°éè¦ 300 MBã</translation>
+    </message>
+    <message>
+        <location filename="../src/core/recorder.cpp" line="437"/>
         <source>No monitor was found.</source>
         <translation>找不到任何螢幕。</translation>
     </message>
     <message>
-        <location filename="../src/core/recorder.cpp" line="356"/>
+        <location filename="../src/core/recorder.cpp" line="444"/>
         <source>Screen capture could not be started.</source>
         <translation>無法開始擷取畫面。</translation>
     </message>
     <message>
-        <location filename="../src/core/recorder.cpp" line="366"/>
+        <location filename="../src/core/recorder.cpp" line="461"/>
         <source>Failed to allocate the frame buffer.</source>
         <translation>無法配置畫面緩衝區。</translation>
     </message>
     <message>
-        <location filename="../src/core/recorder.cpp" line="462"/>
+        <location filename="../src/core/recorder.cpp" line="597"/>
         <source>FFmpeg reported an error (exit code %1).</source>
         <translation>FFmpeg 發生錯誤（結束代碼 %1）。</translation>
+    </message>
+    <message>
+        <location filename="../src/core/recorder.cpp" line="602"/>
+        <source>The disk is full.</source>
+        <translation>ç£ç¢å·²æ»¿ã</translation>
+    </message>
+    <message>
+        <location filename="../src/core/recorder.cpp" line="617"/>
+        <source>Converting to GIF failed. The recording was kept as:
+%1</source>
+        <translation>è½æ GIF å¤±æï¼éå½±å·²ä¿ççºï¼
+%1</translation>
     </message>
 </context>
 <context>

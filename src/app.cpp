@@ -22,12 +22,15 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QScreen>
+#include <QSessionManager>
 #include <QUrl>
 #include <thread>
 
 App::App(bool startMinimized, QObject *parent) : QObject(parent)
 {
     m_settings = AppSettings::load();
+    m_iconApp = QIcon(QStringLiteral(":/icons/app.png"));
+    m_iconRec = QIcon(QStringLiteral(":/icons/recording.png"));
     applyLanguage();
 
     m_recorder = new Recorder(this);
@@ -51,7 +54,7 @@ App::App(bool startMinimized, QObject *parent) : QObject(parent)
     m_menu->addSeparator();
     m_actQuit = m_menu->addAction(QString(), this, &App::quit);
 
-    m_tray = new QSystemTrayIcon(QIcon(QStringLiteral(":/icons/app.png")), this);
+    m_tray = new QSystemTrayIcon(m_iconApp, this);
     m_tray->setContextMenu(m_menu);
     connect(m_tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason r) {
         if (r == QSystemTrayIcon::DoubleClick)
@@ -83,6 +86,12 @@ App::App(bool startMinimized, QObject *parent) : QObject(parent)
 
     qApp->installEventFilter(this); // F1 = 使用說明
 
+    // Windows 登出／關機時先停止錄影，讓 ffmpeg 有機會把檔案寫完整
+    connect(qApp, &QGuiApplication::commitDataRequest, this, [this](QSessionManager &) {
+        if (m_recorder->state() == Recorder::State::Recording)
+            m_recorder->stop();
+    });
+
     retranslate();
     registerHotkey(true);
     if (m_settings.autostart != AutoStart::isEnabled())
@@ -99,7 +108,17 @@ App::App(bool startMinimized, QObject *parent) : QObject(parent)
 
 App::~App()
 {
+    stopProbe();
     delete m_menu;
+}
+
+void App::stopProbe()
+{
+    if (m_probeThread.joinable()) {
+        m_probeCancel = true;
+        m_probeThread.join();
+    }
+    m_probeCancel = false;
 }
 
 QString App::hotkeyText() const
@@ -150,6 +169,7 @@ void App::registerHotkey(bool warnOnFailure)
 
 void App::refreshFfmpeg(const QString &preferredPath)
 {
+    stopProbe(); // 先停掉前一次偵測，避免兩個背景執行緒同時跑
     m_ffmpegPath = FFmpeg::locate(preferredPath);
     m_ffmpegVersion.clear();
     m_encoders.clear();
@@ -164,15 +184,17 @@ void App::refreshFfmpeg(const QString &preferredPath)
 
     const QString path = m_ffmpegPath;
     QPointer<App> self(this);
-    std::thread([self, path, gen] {
+    m_probeThread = std::thread([self, path, gen, cancel = &m_probeCancel] {
         const QString version = FFmpeg::version(path);
-        const QList<EncoderInfo> encoders = FFmpeg::probeEncoders(path);
+        const QList<EncoderInfo> encoders = FFmpeg::probeEncoders(path, cancel);
+        if (cancel->load())
+            return;
         if (App *app = self.data()) {
             QMetaObject::invokeMethod(app, [app, gen, version, encoders] {
                 app->onProbeDone(gen, version, encoders);
             }, Qt::QueuedConnection);
         }
-    }).detach();
+    });
 }
 
 void App::onProbeDone(int generation, const QString &version, const QList<EncoderInfo> &encoders)
@@ -283,15 +305,20 @@ void App::onRecorderState(Recorder::State state)
     updateTray();
 }
 
-void App::onRecordingFinished(const QString &file, bool ok, bool limitReached, const QString &error)
+void App::onRecordingFinished(const QString &file, bool ok, Recorder::StopReason reason, const QString &error)
 {
     updateTray();
     if (ok) {
         m_lastFile = file;
-        if (m_settings.notifyOnSave || limitReached) {
+        if (m_settings.notifyOnSave || reason != Recorder::StopReason::User || m_recorder->usedFallbackFolder()) {
             QString msg = tr("Saved: %1").arg(QFileInfo(file).fileName());
-            if (limitReached)
+            if (reason == Recorder::StopReason::TimeLimit)
                 msg = tr("Recording time limit reached.") + QLatin1Char('\n') + msg;
+            else if (reason == Recorder::StopReason::DiskFull)
+                msg = tr("Recording stopped because the disk is almost full.") + QLatin1Char('\n') + msg;
+            if (m_recorder->usedFallbackFolder())
+                msg += QLatin1Char('\n') + tr("The chosen folder was unavailable, so it was saved to:\n%1")
+                                              .arg(QFileInfo(file).absolutePath());
             msg += QLatin1Char('\n') + tr("Click to show it in the folder.");
             m_tray->showMessage(QStringLiteral(APP_NAME), msg, QSystemTrayIcon::Information, 6000);
         }
@@ -317,18 +344,18 @@ void App::updateTray()
         if (m_settings.durationLimitMin > 0)
             status += tr(" / limit %1 min").arg(m_settings.durationLimitMin);
         m_blink = !m_blink;
-        m_tray->setIcon(QIcon(m_blink ? QStringLiteral(":/icons/recording.png") : QStringLiteral(":/icons/app.png")));
+        m_tray->setIcon(m_blink ? m_iconRec : m_iconApp);
         m_actRecord->setText(tr("Stop recording") + QLatin1Char('\t') + hotkeyText());
     } else if (st == Recorder::State::Finishing) {
         status = tr("Saving…");
-        m_tray->setIcon(QIcon(QStringLiteral(":/icons/recording.png")));
+        m_tray->setIcon(m_iconRec);
         m_actRecord->setText(tr("Saving…"));
     } else if (m_countdownTimer.isActive()) {
         status = tr("Starting in %1…").arg(m_countdownLeft);
         m_actRecord->setText(tr("Cancel countdown") + QLatin1Char('\t') + hotkeyText());
     } else {
         status = tr("Ready");
-        m_tray->setIcon(QIcon(QStringLiteral(":/icons/app.png")));
+        m_tray->setIcon(m_iconApp);
         m_actRecord->setText(tr("Start recording") + QLatin1Char('\t') + hotkeyText());
     }
     m_actRecord->setEnabled(st != Recorder::State::Finishing);
@@ -412,6 +439,11 @@ void App::openOutputFolder()
 
 void App::quit()
 {
+    if (m_countdownTimer.isActive()) {
+        m_countdownTimer.stop();
+        if (m_countdownLabel)
+            m_countdownLabel->deleteLater();
+    }
     if (m_recorder->state() != Recorder::State::Idle) {
         m_quitWhenDone = true;
         m_recorder->stop();

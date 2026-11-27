@@ -58,7 +58,7 @@ endif()
 
 target_link_libraries(qScreenRec PRIVATE
     Qt6::Core Qt6::Gui Qt6::Widgets
-    d3d11 dxgi dwmapi user32 gdi32 shell32 advapi32
+    d3d11 dxgi dwmapi winmm user32 gdi32 shell32 advapi32
 )
 
 # windeployqt after build:  cmake --build build --target deploy

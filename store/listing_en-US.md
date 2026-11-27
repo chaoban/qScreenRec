@@ -42,7 +42,7 @@ screen recorder, screen capture, video recording, tutorial, watermark, GIF, desk
 © 2026 SAISAI.Dev. All rights reserved.
 
 ## Additional license terms
-This app uses Qt (LGPL v3) and FFmpeg (LGPL v2.1+). See About → Licenses in the app.
+This app uses Qt (LGPL v3) and FFmpeg (LGPL v3). See About → Licenses in the app.
 
 ## Developer info
 - Website: [TO FILL]

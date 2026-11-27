@@ -66,4 +66,4 @@ python scripts\make_icons.py
 
 ## 授權
 
-© 2026 SAISAI.Dev 版權所有。本軟體使用 Qt（LGPL v3）與 FFmpeg（LGPL v2.1+），詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+© 2026 SAISAI.Dev 版權所有。本軟體使用 Qt（LGPL v3）與 FFmpeg（LGPL v3），詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

@@ -35,7 +35,7 @@ th { background: #2E2F34; }
 <table>
 <tr><th>Option</th><th>Description</th></tr>
 <tr><td>Monitor</td><td>Choose which monitor to record when you have more than one.</td></tr>
-<tr><td>Format</td><td><b>MP4</b>: best compatibility, recommended.<br><b>MKV</b>: the recorded part stays playable even after a crash or power loss.<br><b>GIF</b>: animated image for short clips, max 15 fps, larger files.</td></tr>
+<tr><td>Format</td><td><b>MP4</b>: best compatibility, recommended.<br><b>MKV</b>: the recorded part stays playable even after a crash or power loss.<br><b>GIF</b>: animated image for short clips, max 15 fps, larger files. Converting takes a few seconds after you stop.</td></tr>
 <tr><td>Resolution</td><td>Original, or scaled down to 2160p / 1440p / 1080p / 720p / 480p (aspect ratio kept, never upscaled).</td></tr>
 <tr><td>Frame rate</td><td>Frames per second. 30 fps suits most tutorials; use 60 fps for smooth motion.</td></tr>
 <tr><td>Quality</td><td>High / Medium / Low. Lower quality gives smaller files.</td></tr>
@@ -64,6 +64,9 @@ th { background: #2E2F34; }
 <p><b>Q: The video is black.</b><br>Some DRM-protected players and content are hidden from capture by Windows.</p>
 <p><b>Q: The recording stutters or files are too big.</b><br>Lower the resolution to 1080p or 720p, use 30 fps, or set quality to Medium.</p>
 <p><b>Q: Administrator prompts (UAC) are not recorded.</b><br>Windows does not allow capturing the secure desktop; the video holds the previous frame meanwhile.</p>
+
+<p><b>Q: My save folder is on drive D:, what happens on a PC without it?</b><br>The recording is saved to "Videos\qScreenRec" instead, and the notification shows where.</p>
+<p><b>Q: What if the disk fills up?</b><br>At least 300 MB must be free to start. If free space drops below 150 MB while recording, the recording stops and is saved safely.</p>
 
 <h2>Contact</h2>
 <p>Feedback and bug reports: <a href="mailto:aisais.dev@gmail.com" style="color:{{ACCENT}}">aisais.dev@gmail.com</a></p>

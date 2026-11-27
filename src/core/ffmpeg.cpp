@@ -89,8 +89,23 @@ QString FFmpeg::displayName(const QString &encoderId)
     return encoderId;
 }
 
-QList<EncoderInfo> FFmpeg::probeEncoders(const QString &ffmpegPath)
+QList<EncoderInfo> FFmpeg::probeEncoders(const QString &ffmpegPath, const std::atomic_bool *cancel)
 {
+    auto cancelled = [cancel] { return cancel && cancel->load(); };
+    // 分段等待，讓取消可以在 0.2 秒內生效
+    auto waitFor = [&](QProcess &p, int timeoutMs) {
+        for (int t = 0; t < timeoutMs; t += 200) {
+            if (p.waitForFinished(200))
+                return true;
+            if (cancelled() || p.state() == QProcess::NotRunning)
+                break;
+        }
+        if (p.state() != QProcess::NotRunning) {
+            p.kill();
+            p.waitForFinished(2000);
+        }
+        return false;
+    };
     QList<EncoderInfo> result;
     if (ffmpegPath.isEmpty())
         return result;
@@ -98,11 +113,13 @@ QList<EncoderInfo> FFmpeg::probeEncoders(const QString &ffmpegPath)
     QProcess list;
     list.setProcessChannelMode(quietMode());
     list.start(ffmpegPath, { QStringLiteral("-hide_banner"), QStringLiteral("-encoders") });
-    if (!list.waitForFinished(8000))
+    if (!waitFor(list, 8000))
         return result;
     const QString encoders = QString::fromLocal8Bit(list.readAll());
 
     for (const auto &c : kCandidates) {
+        if (cancelled())
+            break;
         const QString id = QString::fromLatin1(c.id);
         if (!encoders.contains(QLatin1Char(' ') + id + QLatin1Char(' ')))
             continue;
@@ -118,10 +135,8 @@ QList<EncoderInfo> FFmpeg::probeEncoders(const QString &ffmpegPath)
             QStringLiteral("-b:v"), QStringLiteral("2M"),
             QStringLiteral("-f"), QStringLiteral("null"), QStringLiteral("-"),
         });
-        if (p.waitForFinished(10000) && p.exitStatus() == QProcess::NormalExit && p.exitCode() == 0)
+        if (waitFor(p, 10000) && p.exitStatus() == QProcess::NormalExit && p.exitCode() == 0)
             result.append({ id, QString::fromLatin1(c.name), c.hw });
-        else
-            p.kill();
     }
     return result;
 }
@@ -152,15 +167,6 @@ QStringList FFmpeg::buildArgs(const AppSettings &s, const QString &encoderId,
         QStringLiteral("-i"), QStringLiteral("-"),
     };
 
-    if (s.format == VideoFormat::Gif) {
-        a << QStringLiteral("-filter_complex")
-          << scale + QStringLiteral(",split[a][b];[a]palettegen=stats_mode=diff[p];"
-                                    "[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle")
-          << QStringLiteral("-loop") << QStringLiteral("0")
-          << outputFile;
-        return a;
-    }
-
     a << QStringLiteral("-vf") << scale;
 
     const QString enc = encoderId.isEmpty() ? QStringLiteral("mpeg4") : encoderId;
@@ -190,4 +196,27 @@ QStringList FFmpeg::buildArgs(const AppSettings &s, const QString &encoderId,
         a << QStringLiteral("-movflags") << QStringLiteral("+faststart");
     a << outputFile;
     return a;
+}
+
+QStringList FFmpeg::gifPaletteArgs(const QString &input, int fps, const QString &palette)
+{
+    return {
+        QStringLiteral("-hide_banner"), QStringLiteral("-loglevel"), QStringLiteral("error"), QStringLiteral("-y"),
+        QStringLiteral("-i"), input,
+        QStringLiteral("-vf"), QStringLiteral("fps=%1,palettegen=stats_mode=diff").arg(fps),
+        palette,
+    };
+}
+
+QStringList FFmpeg::gifEncodeArgs(const QString &input, const QString &palette, int fps, const QString &output)
+{
+    return {
+        QStringLiteral("-hide_banner"), QStringLiteral("-loglevel"), QStringLiteral("error"), QStringLiteral("-y"),
+        QStringLiteral("-i"), input,
+        QStringLiteral("-i"), palette,
+        QStringLiteral("-lavfi"),
+        QStringLiteral("fps=%1[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle").arg(fps),
+        QStringLiteral("-loop"), QStringLiteral("0"),
+        output,
+    };
 }
