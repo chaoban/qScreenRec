@@ -62,8 +62,10 @@ AppSettings AppSettings::load()
         a.hotkey = QKeySequence::fromString(hk, QKeySequence::PortableText);
     // 1.0.0 的預設 Ctrl+Shift+R 與瀏覽器「強制重新整理」相同，自動改為新預設（只做一次）
     if (!s.value("general/hotkeyMigrated", false).toBool()) {
-        if (a.hotkey == QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_R))
+        if (a.hotkey == QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_R)) {
             a.hotkey = AppSettings().hotkey;
+            s.setValue("general/hotkey", a.hotkey.toString(QKeySequence::PortableText));
+        }
         s.setValue("general/hotkeyMigrated", true);
     }
     a.language = s.value("general/language").toString();
