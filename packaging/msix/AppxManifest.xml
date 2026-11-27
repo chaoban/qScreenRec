@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 由 scripts\build_msix.ps1 代入 {{...}}。Identity 與 Publisher 必須與 Partner Center「產品身分識別」完全一致。 -->
+<!-- 由 scripts\build_msix.ps1 代入 {{...}}。Identity、Publisher 與 DisplayName 必須與 Partner Center 的產品身分識別／保留名稱完全一致。 -->
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
@@ -13,7 +13,7 @@
             ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>qScreenRec</DisplayName>
+    <DisplayName>{{DISPLAY_NAME}}</DisplayName>
     <PublisherDisplayName>{{PUBLISHER_DISPLAY_NAME}}</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>Screen recorder that lives in the system tray.</Description>
@@ -31,7 +31,7 @@
   <Applications>
     <Application Id="qScreenRec" Executable="qScreenRec.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="qScreenRec"
+        DisplayName="{{DISPLAY_NAME}}"
         Description="qScreenRec screen recorder"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"

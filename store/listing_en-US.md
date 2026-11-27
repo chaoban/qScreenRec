@@ -1,7 +1,7 @@
 # Store listing: English (United States)
 
 ## Product name
-qScreenRec
+qScreenRec 螢幕畫面錄製
 
 ## Short description
 A lightweight screen recorder that lives in your system tray. Press one hotkey to start, press it again to stop. Records your mouse cursor, adds an optional watermark, and lets you pick format and resolution.

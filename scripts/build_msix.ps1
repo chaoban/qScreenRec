@@ -17,6 +17,8 @@ param(
     [string]$IdentityName = "SAISAI.Dev.qScreenRec",
     [string]$Publisher = "CN=8EE2A838-6C91-4290-8711-F41153FB93C1",
     [string]$PublisherDisplayName = "SAISAI.Dev",
+    # 必須是 Partner Center 已保留的應用程式名稱
+    [string]$DisplayName = "qScreenRec 螢幕畫面錄製",
     [switch]$Sign
 )
 $ErrorActionPreference = "Stop"
@@ -41,7 +43,7 @@ Copy-Item "$Root\packaging\msix\Assets" $Stage -Recurse
 
 $manifest = Get-Content "$Root\packaging\msix\AppxManifest.xml" -Raw -Encoding UTF8
 $manifest = $manifest.Replace('{{IDENTITY_NAME}}', $IdentityName).Replace('{{PUBLISHER}}', $Publisher).
-    Replace('{{PUBLISHER_DISPLAY_NAME}}', $PublisherDisplayName).Replace('{{VERSION}}', $Version)
+    Replace('{{PUBLISHER_DISPLAY_NAME}}', $PublisherDisplayName).Replace('{{VERSION}}', $Version).Replace('{{DISPLAY_NAME}}', $DisplayName)
 [IO.File]::WriteAllText("$Stage\AppxManifest.xml", $manifest, (New-Object Text.UTF8Encoding($false)))
 
 # 產生 resources.pri（讓 scale-100/200 圖示正確對應）

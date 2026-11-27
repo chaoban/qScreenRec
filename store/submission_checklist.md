@@ -8,6 +8,7 @@
   - `Package/Identity/Name`：SAISAI.Dev.qScreenRec
   - `Package/Identity/Publisher`：CN=8EE2A838-6C91-4290-8711-F41153FB93C1
   - `Package/Properties/PublisherDisplayName`：SAISAI.Dev
+  - 保留的應用程式名稱（套件 DisplayName 與商店頁產品名稱都必須用這個）：qScreenRec 螢幕畫面錄製
 - [ ] 把隱私權政策放到公開網址（GitHub Pages、Notion 公開頁面或個人網站皆可）
 
 ## 二、打包
