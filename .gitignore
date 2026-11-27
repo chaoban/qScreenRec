@@ -1,0 +1,8 @@
+build/
+dist/
+third_party/
+*.user
+.vs/
+CMakeUserPresets.json
+*.qm
+*.pfx

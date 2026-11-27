@@ -1,0 +1,71 @@
+<html><head><style>
+body { font-family: 'Microsoft JhengHei UI'; font-size: 10.5pt; color: #E8E8EA; line-height: 150%; }
+h1 { color: {{ACCENT}}; font-size: 18pt; margin-bottom: 4px; }
+h2 { color: {{ACCENT}}; font-size: 13pt; margin-top: 18px; border-bottom: 1px solid #3A3B40; }
+table { border-collapse: collapse; }
+td, th { padding: 4px 10px; border: 1px solid #3A3B40; }
+th { background: #2E2F34; }
+.key { background: #2E2F34; border: 1px solid #55565C; padding: 1px 6px; font-weight: bold; }
+.muted { color: #9A9BA0; }
+</style></head><body>
+<h1>qScreenRec 使用說明</h1>
+<p class="muted">版本 {{VERSION}}　·　在任何 qScreenRec 視窗按 <span class="key">F1</span> 即可開啟本說明</p>
+
+<h2>快速開始</h2>
+<ol>
+<li>啟動後，qScreenRec 會常駐在工作列右下角的<b>系統匣</b>（橘色螢幕圖示）。若沒看到，請點工作列的「^」展開隱藏圖示。</li>
+<li>按下快捷鍵 <span class="key">{{HOTKEY}}</span> 開始錄影（預設會先倒數 3 秒）。</li>
+<li>錄影中，系統匣圖示會閃爍紅點，滑鼠移到圖示上可看到已錄製時間。</li>
+<li>再按一次 <span class="key">{{HOTKEY}}</span> 停止錄影，影片會自動存檔，並跳出通知；點通知即可在檔案總管中找到影片。</li>
+</ol>
+
+<h2>系統匣選單</h2>
+<p>在系統匣圖示上按滑鼠左鍵或右鍵開啟選單，雙擊則直接開啟「設定」。</p>
+<table>
+<tr><th>項目</th><th>說明</th></tr>
+<tr><td>開始錄影／停止錄影</td><td>與快捷鍵相同。倒數期間再按一次可取消。</td></tr>
+<tr><td>開啟錄影資料夾</td><td>開啟影片存放的資料夾。</td></tr>
+<tr><td>設定…</td><td>調整錄影格式、解析度、時間、浮水印與快捷鍵等。</td></tr>
+<tr><td>使用說明</td><td>開啟本說明（F1）。</td></tr>
+<tr><td>關於 qScreenRec</td><td>版本、版權與授權資訊。</td></tr>
+<tr><td>結束</td><td>關閉程式。若正在錄影，會先存檔再結束。</td></tr>
+</table>
+
+<h2>設定：錄影</h2>
+<table>
+<tr><th>選項</th><th>說明</th></tr>
+<tr><td>螢幕</td><td>有多個螢幕時，選擇要錄哪一個。</td></tr>
+<tr><td>格式</td><td><b>MP4</b>：相容性最好，建議使用。<br><b>MKV</b>：即使錄影中途當機或斷電，已錄的部分仍可播放。<br><b>GIF</b>：動畫圖檔，適合短片段，最高 15 fps，檔案較大。</td></tr>
+<tr><td>解析度</td><td>原始，或縮小至 2160p／1440p／1080p／720p／480p（維持長寬比，不會放大）。</td></tr>
+<tr><td>影格率</td><td>每秒畫面數。一般操作教學 30 fps 即可；需要流暢動畫時選 60 fps。</td></tr>
+<tr><td>畫質</td><td>高／中／低。畫質越低檔案越小。</td></tr>
+<tr><td>編碼器</td><td>「自動」會優先使用顯示卡硬體編碼（NVIDIA、Intel、AMD），速度快且不佔 CPU。</td></tr>
+<tr><td>錄影時間</td><td>設定分鐘數後，時間到會自動停止並存檔。設為「不限」則手動停止。</td></tr>
+<tr><td>倒數</td><td>按下快捷鍵後，先在畫面中央倒數幾秒再開始錄影。</td></tr>
+<tr><td>滑鼠</td><td>是否錄進滑鼠游標；可另外開啟「標示滑鼠點擊」，按下左鍵時游標周圍會出現黃色光圈、右鍵為藍色。</td></tr>
+<tr><td>儲存位置</td><td>預設為「影片\qScreenRec」。檔名格式：qScreenRec_年月日_時分秒。</td></tr>
+</table>
+
+<h2>設定：浮水印</h2>
+<p>勾選「在錄影中加入文字浮水印」，輸入最多 <b>20 個字</b>（中英文皆可），並選擇位置與透明度。下方會即時顯示預覽。浮水印會直接燒錄在影片畫面中。</p>
+
+<h2>設定：一般</h2>
+<table>
+<tr><th>選項</th><th>說明</th></tr>
+<tr><td>開始／停止快捷鍵</td><td>點一下輸入框後，直接按下想要的組合鍵（需包含 Ctrl、Alt、Shift 或 Win，F2～F12 可單獨使用）。若顯示已被其他程式使用，請換一組。</td></tr>
+<tr><td>語言</td><td>繁體中文／English，或跟隨系統。</td></tr>
+<tr><td>開機時自動啟動</td><td>登入 Windows 後自動在系統匣待命。</td></tr>
+<tr><td>存檔通知</td><td>錄影存檔後顯示通知。</td></tr>
+<tr><td>FFmpeg</td><td>影片編碼元件。安裝版已內附，一般不需設定。</td></tr>
+</table>
+
+<h2>常見問題</h2>
+<p><b>Q：按快捷鍵沒有反應？</b><br>可能被其他程式（例如截圖或遊戲軟體）佔用。請到「設定 → 一般」更換快捷鍵。</p>
+<p><b>Q：錄出來是黑畫面？</b><br>部分受版權保護的影片播放器或 DRM 內容會被 Windows 遮蔽，這是系統的保護機制。</p>
+<p><b>Q：錄影卡頓或檔案太大？</b><br>可將解析度降為 1080p 或 720p、影格率改為 30 fps，或把畫質調為「中」。</p>
+<p><b>Q：系統管理員權限的視窗（UAC 提示）錄不到？</b><br>Windows 安全桌面不允許擷取，期間影片會停留在前一個畫面。</p>
+
+<h2>聯絡我們</h2>
+<p>問題回報與建議：<a href="mailto:aisais.dev@gmail.com" style="color:{{ACCENT}}">aisais.dev@gmail.com</a></p>
+<p class="muted">© 2026 SAISAI.Dev 版權所有</p>
+</body></html>

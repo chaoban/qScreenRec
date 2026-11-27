@@ -1,0 +1,71 @@
+<html><head><style>
+body { font-family: 'Segoe UI'; font-size: 10.5pt; color: #E8E8EA; line-height: 150%; }
+h1 { color: {{ACCENT}}; font-size: 18pt; margin-bottom: 4px; }
+h2 { color: {{ACCENT}}; font-size: 13pt; margin-top: 18px; border-bottom: 1px solid #3A3B40; }
+table { border-collapse: collapse; }
+td, th { padding: 4px 10px; border: 1px solid #3A3B40; }
+th { background: #2E2F34; }
+.key { background: #2E2F34; border: 1px solid #55565C; padding: 1px 6px; font-weight: bold; }
+.muted { color: #9A9BA0; }
+</style></head><body>
+<h1>qScreenRec Help</h1>
+<p class="muted">Version {{VERSION}} · Press <span class="key">F1</span> in any qScreenRec window to open this help</p>
+
+<h2>Getting started</h2>
+<ol>
+<li>qScreenRec lives in the <b>system tray</b> at the bottom right of the taskbar (orange monitor icon). If you can't see it, click the "^" arrow to show hidden icons.</li>
+<li>Press <span class="key">{{HOTKEY}}</span> to start recording (a 3-second countdown is shown by default).</li>
+<li>While recording, the tray icon blinks red. Hover over it to see the elapsed time.</li>
+<li>Press <span class="key">{{HOTKEY}}</span> again to stop. The video is saved automatically and a notification appears; click it to show the file in File Explorer.</li>
+</ol>
+
+<h2>Tray menu</h2>
+<p>Left- or right-click the tray icon to open the menu. Double-click opens Settings.</p>
+<table>
+<tr><th>Item</th><th>Description</th></tr>
+<tr><td>Start / Stop recording</td><td>Same as the hotkey. Press again during the countdown to cancel.</td></tr>
+<tr><td>Open recordings folder</td><td>Opens the folder where videos are saved.</td></tr>
+<tr><td>Settings…</td><td>Format, resolution, time limit, watermark, hotkey and more.</td></tr>
+<tr><td>Help</td><td>Opens this help (F1).</td></tr>
+<tr><td>About qScreenRec</td><td>Version, copyright and license information.</td></tr>
+<tr><td>Exit</td><td>Closes the program. An ongoing recording is saved first.</td></tr>
+</table>
+
+<h2>Settings: Recording</h2>
+<table>
+<tr><th>Option</th><th>Description</th></tr>
+<tr><td>Monitor</td><td>Choose which monitor to record when you have more than one.</td></tr>
+<tr><td>Format</td><td><b>MP4</b>: best compatibility, recommended.<br><b>MKV</b>: the recorded part stays playable even after a crash or power loss.<br><b>GIF</b>: animated image for short clips, max 15 fps, larger files.</td></tr>
+<tr><td>Resolution</td><td>Original, or scaled down to 2160p / 1440p / 1080p / 720p / 480p (aspect ratio kept, never upscaled).</td></tr>
+<tr><td>Frame rate</td><td>Frames per second. 30 fps suits most tutorials; use 60 fps for smooth motion.</td></tr>
+<tr><td>Quality</td><td>High / Medium / Low. Lower quality gives smaller files.</td></tr>
+<tr><td>Encoder</td><td>"Automatic" prefers GPU hardware encoding (NVIDIA, Intel, AMD), which is fast and light on the CPU.</td></tr>
+<tr><td>Recording time</td><td>Recording stops and saves automatically after this many minutes. "Unlimited" means you stop it manually.</td></tr>
+<tr><td>Countdown</td><td>Seconds counted down in the middle of the screen before recording starts.</td></tr>
+<tr><td>Mouse</td><td>Whether to record the mouse cursor. "Highlight mouse clicks" shows a yellow ring for the left button and a blue ring for the right button.</td></tr>
+<tr><td>Save to</td><td>Defaults to "Videos\qScreenRec". File names look like qScreenRec_YYYYMMDD_HHMMSS.</td></tr>
+</table>
+
+<h2>Settings: Watermark</h2>
+<p>Check "Add a text watermark to recordings", enter up to <b>20 characters</b>, then choose a position and opacity. A live preview is shown below. The watermark is burned into the video.</p>
+
+<h2>Settings: General</h2>
+<table>
+<tr><th>Option</th><th>Description</th></tr>
+<tr><td>Start / stop hotkey</td><td>Click the box and press the combination you want (it must include Ctrl, Alt, Shift or Win; F2–F12 may be used alone). If it is already taken by another program, pick another one.</td></tr>
+<tr><td>Language</td><td>Traditional Chinese / English, or follow the system.</td></tr>
+<tr><td>Start with Windows</td><td>Waits in the system tray after you sign in to Windows.</td></tr>
+<tr><td>Save notification</td><td>Shows a notification after each recording is saved.</td></tr>
+<tr><td>FFmpeg</td><td>The video encoding component. It is bundled with the installer and normally needs no setup.</td></tr>
+</table>
+
+<h2>FAQ</h2>
+<p><b>Q: Nothing happens when I press the hotkey.</b><br>Another program (for example a screenshot or gaming tool) may be using it. Choose another hotkey in Settings → General.</p>
+<p><b>Q: The video is black.</b><br>Some DRM-protected players and content are hidden from capture by Windows.</p>
+<p><b>Q: The recording stutters or files are too big.</b><br>Lower the resolution to 1080p or 720p, use 30 fps, or set quality to Medium.</p>
+<p><b>Q: Administrator prompts (UAC) are not recorded.</b><br>Windows does not allow capturing the secure desktop; the video holds the previous frame meanwhile.</p>
+
+<h2>Contact</h2>
+<p>Feedback and bug reports: <a href="mailto:aisais.dev@gmail.com" style="color:{{ACCENT}}">aisais.dev@gmail.com</a></p>
+<p class="muted">© 2026 SAISAI.Dev. All rights reserved.</p>
+</body></html>

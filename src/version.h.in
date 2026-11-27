@@ -1,0 +1,6 @@
+#pragma once
+#define APP_NAME        "qScreenRec"
+#define APP_VERSION     "@PROJECT_VERSION@"
+#define APP_COMPANY     "@APP_COMPANY@"
+#define APP_COPYRIGHT   "@APP_COPYRIGHT@"
+#define APP_EMAIL       "@APP_EMAIL@"
