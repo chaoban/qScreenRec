@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   把 dist\qScreenRec 打包成 MSIX（上傳 Microsoft Store 用）
 .PARAMETER Publisher

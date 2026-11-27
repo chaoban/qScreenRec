@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   下載 LGPL 授權的 FFmpeg Windows 版（BtbN/FFmpeg-Builds）到 third_party\ffmpeg
 .NOTES

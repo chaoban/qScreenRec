@@ -18,13 +18,13 @@ struct Candidate
 };
 
 // 依偏好順序：GPU 硬體編碼優先，其次 Windows 內建，最後 CPU 軟體編碼
+// 不使用 libopenh264：自行編譯的 OpenH264 不在 Cisco 專利授權範圍內
 const Candidate kCandidates[] = {
     { "h264_nvenc", "NVIDIA NVENC (GPU)", true },
     { "h264_qsv", "Intel Quick Sync (GPU)", true },
     { "h264_amf", "AMD AMF (GPU)", true },
     { "h264_mf", "Windows Media Foundation", true },
     { "libx264", "x264 (CPU)", false },
-    { "libopenh264", "OpenH264 (CPU)", false },
     { "mpeg4", "MPEG-4 Part 2 (CPU)", false },
 };
 

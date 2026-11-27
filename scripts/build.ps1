@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   編譯 qScreenRec 並輸出可攜版到 dist\qScreenRec
 .EXAMPLE
@@ -64,6 +64,9 @@ if (Test-Path $ff) {
     New-Item -ItemType Directory -Force "$Dist\ffmpeg" | Out-Null
     Copy-Item $ff "$Dist\ffmpeg\"
     Get-ChildItem (Split-Path $ff) -Filter "LICENSE*" | Copy-Item -Destination "$Dist\ffmpeg\"
+    # shared 版 FFmpeg（例如 BtbN lgpl-shared）需要同目錄的 av*.dll / sw*.dll
+    Get-ChildItem (Split-Path $ff) -Filter "*.dll" | Copy-Item -Destination "$Dist\ffmpeg\"
+    Get-ChildItem (Split-Path $ff) -Filter "SOURCE*" | Copy-Item -Destination "$Dist\ffmpeg\"
 } else {
     Write-Warning "third_party\ffmpeg\ffmpeg.exe 不存在，dist 內不含 FFmpeg（請執行 scripts\fetch_ffmpeg.ps1）"
 }
