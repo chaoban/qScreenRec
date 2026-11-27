@@ -5,9 +5,9 @@
 - [ ] 註冊 Microsoft 開發人員帳戶：<https://partner.microsoft.com/dashboard/registration>（個人帳戶目前免費；公司帳戶需驗證）
 - [ ] 在 Partner Center 建立新應用程式，保留名稱 **qScreenRec**
 - [ ] 到「產品管理 → 產品身分識別」記下三個值：
-  - `Package/Identity/Name`：【待填】
-  - `Package/Identity/Publisher`：【待填，形如 CN=XXXXXXXX-XXXX-…】
-  - `Package/Properties/PublisherDisplayName`：【待填】
+  - `Package/Identity/Name`：SAISAI.Dev.qScreenRec
+  - `Package/Identity/Publisher`：CN=8EE2A838-6C91-4290-8711-F41153FB93C1
+  - `Package/Properties/PublisherDisplayName`：SAISAI.Dev
 - [ ] 把隱私權政策放到公開網址（GitHub Pages、Notion 公開頁面或個人網站皆可）
 
 ## 二、打包
@@ -17,12 +17,8 @@
 powershell -ExecutionPolicy Bypass -File scripts\fetch_ffmpeg.ps1
 # 2. 編譯並組成 dist\qScreenRec
 powershell -ExecutionPolicy Bypass -File scripts\build.ps1
-# 3. 打包 MSIX（三個值換成 Partner Center 的產品身分識別）
-powershell -ExecutionPolicy Bypass -File scripts\build_msix.ps1 `
-    -Version 1.0.0.0 `
-    -IdentityName "【Package/Identity/Name】" `
-    -Publisher "【Package/Identity/Publisher】" `
-    -PublisherDisplayName "【PublisherDisplayName】"
+# 3. 打包 MSIX（腳本預設值已是 Partner Center 的產品身分識別，只需指定版本）
+powershell -ExecutionPolicy Bypass -File scripts\build_msix.ps1 -Version 1.0.0.0
 ```
 
 - [ ] 版本號第四碼必須是 0（例如 1.0.1.0），每次送審都要比上次大

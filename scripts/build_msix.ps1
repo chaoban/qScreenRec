@@ -14,8 +14,8 @@
 #>
 param(
     [string]$Version = "1.0.0.0",
-    [string]$IdentityName = "SAISAI.qScreenRec",
-    [string]$Publisher = "CN=SAISAI.Dev",
+    [string]$IdentityName = "SAISAI.Dev.qScreenRec",
+    [string]$Publisher = "CN=8EE2A838-6C91-4290-8711-F41153FB93C1",
     [string]$PublisherDisplayName = "SAISAI.Dev",
     [switch]$Sign
 )
