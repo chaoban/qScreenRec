@@ -156,7 +156,12 @@ QStringList FFmpeg::buildArgs(const AppSettings &s, const QString &encoderId,
                               const QSize &source, int fps, const QString &outputFile)
 {
     const QSize out = outputSize(source, s.targetHeight());
-    const QString scale = QStringLiteral("scale=%1:%2:flags=bicubic").arg(out.width()).arg(out.height());
+    // 縮小時用 bilinear（螢幕畫面縮小時與 bicubic 肉眼差異極小，但 CPU 少很多）；
+    // 原尺寸時只做色彩格式轉換
+    const bool resize = out != source;
+    const QString scale = resize
+        ? QStringLiteral("scale=%1:%2:flags=bilinear").arg(out.width()).arg(out.height())
+        : QStringLiteral("scale=%1:%2:flags=fast_bilinear").arg(out.width()).arg(out.height());
 
     QStringList a = {
         QStringLiteral("-hide_banner"), QStringLiteral("-loglevel"), QStringLiteral("error"), QStringLiteral("-y"),
