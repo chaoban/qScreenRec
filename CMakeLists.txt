@@ -40,6 +40,7 @@ set(SOURCES
     src/ui/helpdialog.cpp          src/ui/helpdialog.h
     src/ui/hotkeyedit.cpp          src/ui/hotkeyedit.h
     resources/resources.qrc
+    resources/qScreenRec.manifest   # Per-Monitor V2 DPI 感知（MSVC 會合併進內嵌 manifest）
     ${CMAKE_CURRENT_BINARY_DIR}/app.rc
 )
 

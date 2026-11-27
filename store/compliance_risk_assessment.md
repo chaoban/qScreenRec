@@ -33,7 +33,7 @@
 | 開機自動啟動 | Store 版不可寫 Run 機碼 | Store 版改用 manifest 的 StartupTask，由使用者在 Windows 設定開啟；程式偵測封裝狀態並停用該選項 | OK |
 | 年齡分級 | 填答錯誤會被要求修正 | [age_rating.md](age_rating.md) 提供建議答案（3+） | OK |
 | 名稱與圖示 | 不可侵犯他人商標 | 使用自有 SAISAI 商標與自製圖示 | OK |
-| Windows App Certification Kit | FFmpeg 的 DLL 由 MinGW 編譯，可能出現「二進位分析」警告 | 桌面橋接 App 該項多為警告不擋上架；若被退件，可改用 MSVC 編譯的 LGPL FFmpeg | 上架前確認 |
+| Windows App Certification Kit | 未通過即可能被退件 | 2026-11-27 實測 PASS；僅選用項目「Blocked executables」因呼叫 ffmpeg.exe 標示，屬 Windows 10 S 專用資訊性檢查；已加入 Per-Monitor V2 DPI 宣告 | OK |
 
 ## 四、程式穩定性（防當機）
 

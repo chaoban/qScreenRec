@@ -27,7 +27,7 @@ powershell -ExecutionPolicy Bypass -File scripts\build_msix.ps1 `
 
 - [ ] 版本號第四碼必須是 0（例如 1.0.1.0），每次送審都要比上次大
 - [ ] 本機測試：加 `-Sign` 產生自簽版本，安裝後確認可錄影、系統匣、快捷鍵、F1、中英文切換都正常
-- [ ] 用 **Windows App Certification Kit**（Windows SDK 內附）跑一次檢測
+- [x] **Windows App Certification Kit**：2026-11-27 於開發機測試 1.0.0.0，整體結果 PASS（25 項必要測試通過；選用項目「Blocked executables」標示啟動 ffmpeg.exe，屬設計本身，不影響上架）
 
 ## 三、Partner Center 送審內容
 

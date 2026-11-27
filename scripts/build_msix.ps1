@@ -47,7 +47,14 @@ $manifest = $manifest.Replace('{{IDENTITY_NAME}}', $IdentityName).Replace('{{PUB
 # 產生 resources.pri（讓 scale-100/200 圖示正確對應）
 Push-Location $Stage
 & $makepri createconfig /cf priconfig.xml /dq en-US_zh-TW /o | Out-Null
-& $makepri new /pr . /cf priconfig.xml /of resources.pri /o
+if ($LASTEXITCODE) { throw "makepri createconfig 失敗" }
+# 單一 MSIX（非 bundle）不可拆分資源套件：預設 priconfig 的 autoResourcePackage 會把 scale-200
+# 拆到 resources.scale-200.pri，主 resources.pri 就只剩 scale-100 候選，@2x 圖示永遠不會被用到
+$priCfg = [IO.File]::ReadAllText("$Stage\priconfig.xml")
+$priCfg = [regex]::Replace($priCfg, '(?s)\s*<packaging>.*?</packaging>', '')
+[IO.File]::WriteAllText("$Stage\priconfig.xml", $priCfg, (New-Object Text.UTF8Encoding($false)))
+& $makepri new /pr . /cf priconfig.xml /of resources.pri /o | Out-Null
+if ($LASTEXITCODE) { throw "makepri new 失敗" }
 Remove-Item priconfig.xml
 Pop-Location
 
