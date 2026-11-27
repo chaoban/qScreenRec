@@ -1,8 +1,8 @@
-# qScreenRec Privacy Policy
+# qScreenRec 螢幕畫面錄製 Privacy Policy
 
 Last updated: November 27, 2026
 
-SAISAI.Dev ("we") respects your privacy. This policy explains how qScreenRec ("the app") handles your information.
+SAISAI.Dev ("we") respects your privacy. This policy explains how qScreenRec 螢幕畫面錄製 ("the app") handles your information.
 
 ## We collect no personal data
 - The app requires **no account or sign-in** and **does not connect to the internet**.
