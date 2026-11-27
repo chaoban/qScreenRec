@@ -7,7 +7,7 @@ qScreenRec
 A lightweight screen recorder that lives in your system tray. Press one hotkey to start, press it again to stop. Records your mouse cursor, adds an optional watermark, and lets you pick format and resolution.
 
 ## Description
-qScreenRec is a system-tray screen recorder built for tutorials, bug reports and quick demos. There is no complicated window to open: press the hotkey (Ctrl+Shift+R by default) to start recording and press it again to save.
+qScreenRec is a system-tray screen recorder built for tutorials, bug reports and quick demos. There is no complicated window to open: press the hotkey (Ctrl+Alt+R by default) to start recording and press it again to save.
 
 KEY FEATURES
 • One-key recording: a global hotkey works even when the app is in the background

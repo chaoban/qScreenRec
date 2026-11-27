@@ -29,7 +29,7 @@ public:
     ~App() override;
 
     void toggleRecording();
-    void showSettings();
+    void showSettings(int tab = -1);   // tab: 0 錄影, 1 浮水印, 2 一般
     void showHelp();
     void showAbout();
     void openOutputFolder();

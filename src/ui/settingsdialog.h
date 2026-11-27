@@ -20,6 +20,7 @@ public:
     SettingsDialog(const AppSettings &settings, QWidget *parent = nullptr);
 
     AppSettings settings() const;
+    void setCurrentTab(int index);
     void setEncoders(const QList<EncoderInfo> &encoders, bool probing);
     void setFfmpegStatus(const QString &path, const QString &version);
 
@@ -35,6 +36,7 @@ private:
     void updateFormatDependent();
 
     AppSettings m_settings;
+    class QTabWidget *m_tabs = nullptr;
     bool m_encodersReady = false;
 
     // 錄影

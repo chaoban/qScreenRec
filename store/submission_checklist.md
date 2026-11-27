@@ -38,7 +38,7 @@ powershell -ExecutionPolicy Bypass -File scripts\build_msix.ps1 `
 - [ ] 商店清單：中文與英文各一份（見 listing 檔），至少 1 張截圖，建議 4～6 張
 - [ ] 送審說明（Notes for certification）：
 
-  > qScreenRec runs in the system tray. After launch, find the orange icon in the notification area (click "^" if hidden). Press Ctrl+Shift+R to start and stop recording; recordings are saved to Videos\qScreenRec. No account or network connection is needed. The app declares runFullTrust because it is a Win32 desktop app that captures the screen with DXGI Desktop Duplication and runs the bundled FFmpeg executable for encoding.
+  > qScreenRec runs in the system tray. After launch, find the orange icon in the notification area (click "^" if hidden). Press Ctrl+Alt+R to start and stop recording; recordings are saved to Videos\qScreenRec. No account or network connection is needed. The app declares runFullTrust because it is a Win32 desktop app that captures the screen with DXGI Desktop Duplication and runs the bundled FFmpeg executable for encoding.
 
 ## 四、受限功能說明（runFullTrust）
 

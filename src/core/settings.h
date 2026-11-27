@@ -35,7 +35,7 @@ struct AppSettings
     int watermarkOpacity = 70;            // 10–100 %
 
     // 一般
-    QKeySequence hotkey = QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_R);
+    QKeySequence hotkey = QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R);
     QString language;                     // "zh_TW" / "en"；空 = 依系統
     bool autostart = false;
     bool notifyOnSave = true;

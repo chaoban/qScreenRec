@@ -2,6 +2,9 @@
 import html, os, re, sys
 
 T = {
+'The hotkey %1 is already used by another program, so it cannot start recording.\n\nPlease choose another hotkey.': '快捷鍵 %1 已被其他程式使用，無法用來開始錄影。\n\n請改用其他組合鍵。',
+'Change hotkey…': '更改快捷鍵…',
+'Later': '稍後',
 'Not enough free disk space in:\n%1\n\nAt least 300 MB is required.': 'ç£\x81ç¢\x9fç©ºé\x96\x93ä¸\x8dè¶³ï¼\x9a\n%1\n\nè\x87³å°\x91é\x9c\x80è¦\x81 300 MBã\x80\x82',
 'The disk is full.': 'ç£\x81ç¢\x9få·²æ»¿ã\x80\x82',
 'Converting to GIF failed. The recording was kept as:\n%1': 'è½\x89æ\x8f\x9b GIF å¤±æ\x95\x97ï¼\x8cé\x8c\x84å½±å·²ä¿\x9dç\x95\x99ç\x82ºï¼\x9a\n%1',

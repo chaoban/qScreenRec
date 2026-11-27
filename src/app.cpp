@@ -21,6 +21,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
+#include <QPushButton>
 #include <QScreen>
 #include <QSessionManager>
 #include <QUrl>
@@ -48,7 +49,7 @@ App::App(bool startMinimized, QObject *parent) : QObject(parent)
     m_actRecord = m_menu->addAction(QString(), this, &App::toggleRecording);
     m_actFolder = m_menu->addAction(QString(), this, &App::openOutputFolder);
     m_menu->addSeparator();
-    m_actSettings = m_menu->addAction(QString(), this, &App::showSettings);
+    m_actSettings = m_menu->addAction(QString(), this, [this] { showSettings(); });
     m_actHelp = m_menu->addAction(QString(), this, &App::showHelp);
     m_actAbout = m_menu->addAction(QString(), this, &App::showAbout);
     m_menu->addSeparator();
@@ -159,12 +160,18 @@ void App::retranslate()
 
 void App::registerHotkey(bool warnOnFailure)
 {
-    if (!m_hotkey->setShortcut(m_settings.hotkey) && warnOnFailure) {
-        m_tray->showMessage(QStringLiteral(APP_NAME),
-                            tr("The hotkey %1 is already used by another program. Please choose another one in Settings.")
-                                .arg(hotkeyText()),
-                            QSystemTrayIcon::Warning, 8000);
-    }
+    if (m_hotkey->setShortcut(m_settings.hotkey) || !warnOnFailure)
+        return;
+    // 註冊失敗（已被其他程式佔用）：快捷鍵不會生效，而且按下去會傳給前景程式，所以明確提示並引導改鍵
+    QMessageBox box(QMessageBox::Warning, QStringLiteral(APP_NAME),
+                    tr("The hotkey %1 is already used by another program, so it cannot start recording.\n\n"
+                       "Please choose another hotkey.").arg(hotkeyText()));
+    QPushButton *change = box.addButton(tr("Change hotkey…"), QMessageBox::AcceptRole);
+    box.addButton(tr("Later"), QMessageBox::RejectRole);
+    box.setDefaultButton(change);
+    box.exec();
+    if (box.clickedButton() == change)
+        showSettings(2);
 }
 
 void App::refreshFfmpeg(const QString &preferredPath)
@@ -363,14 +370,18 @@ void App::updateTray()
     m_tray->setToolTip(QStringLiteral("%1\n%2").arg(QStringLiteral(APP_NAME), status));
 }
 
-void App::showSettings()
+void App::showSettings(int tab)
 {
     if (m_settingsDlg) {
+        if (tab >= 0)
+            m_settingsDlg->setCurrentTab(tab);
         m_settingsDlg->raise();
         m_settingsDlg->activateWindow();
         return;
     }
     auto *dlg = new SettingsDialog(m_settings);
+    if (tab >= 0)
+        dlg->setCurrentTab(tab);
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     m_settingsDlg = dlg;
     dlg->setFfmpegStatus(m_ffmpegPath, m_ffmpegVersion);

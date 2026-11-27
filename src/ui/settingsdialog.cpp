@@ -41,6 +41,7 @@ SettingsDialog::SettingsDialog(const AppSettings &settings, QWidget *parent)
     setMinimumWidth(520);
 
     auto *tabs = new QTabWidget(this);
+    m_tabs = tabs;
     tabs->addTab(buildRecordingTab(), tr("Recording"));
     tabs->addTab(buildWatermarkTab(), tr("Watermark"));
     tabs->addTab(buildGeneralTab(), tr("General"));
@@ -367,4 +368,10 @@ AppSettings SettingsDialog::settings() const
     s.notifyOnSave = m_notify->isChecked();
     s.ffmpegPath = m_ffmpegPath->text().trimmed();
     return s;
+}
+
+void SettingsDialog::setCurrentTab(int index)
+{
+    if (m_tabs && index >= 0 && index < m_tabs->count())
+        m_tabs->setCurrentIndex(index);
 }

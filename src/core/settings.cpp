@@ -38,7 +38,7 @@ QString AppSettings::effectiveLanguage() const
 
 AppSettings AppSettings::load()
 {
-    QSettings s;
+    QSettings s; // 非 const：load 時會寫入一次性的遷移旗標
     AppSettings a;
     a.monitorIndex = s.value("record/monitor", 0).toInt();
     a.format = readEnum(s, "record/format", VideoFormat::Mp4, 2);
@@ -60,6 +60,12 @@ AppSettings AppSettings::load()
     const QString hk = s.value("general/hotkey").toString();
     if (!hk.isEmpty())
         a.hotkey = QKeySequence::fromString(hk, QKeySequence::PortableText);
+    // 1.0.0 的預設 Ctrl+Shift+R 與瀏覽器「強制重新整理」相同，自動改為新預設（只做一次）
+    if (!s.value("general/hotkeyMigrated", false).toBool()) {
+        if (a.hotkey == QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_R))
+            a.hotkey = AppSettings().hotkey;
+        s.setValue("general/hotkeyMigrated", true);
+    }
     a.language = s.value("general/language").toString();
     a.autostart = s.value("general/autostart", false).toBool();
     a.notifyOnSave = s.value("general/notifyOnSave", true).toBool();

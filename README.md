@@ -8,7 +8,7 @@ A system-tray screen recorder for Windows 11. Press a hotkey to start, press it 
 
 ## 功能
 
-- 系統匣常駐、全域快捷鍵（預設 `Ctrl+Shift+R`，可自訂）開始／停止
+- 系統匣常駐、全域快捷鍵（預設 `Ctrl+Alt+R`，可自訂）開始／停止
 - 錄下畫面與滑鼠游標，可標示滑鼠點擊
 - 輸出格式：MP4、MKV（H.264）、GIF
 - 解析度：原始、2160p、1440p、1080p、720p、480p
